@@ -12,6 +12,7 @@ import (
 type hotelRepository interface {
 	InsertHotel(ctx context.Context, h *models.Hotel) error
 	FetchHotels(ctx context.Context) ([]models.Hotel, error)
+	UpdateHotel(ctx context.Context, h models.Hotel, id int64) error
 }
 
 type Usecase struct {
@@ -51,4 +52,17 @@ func (uc *Usecase) GetHotelList(ctx context.Context) ([]models.Hotel, error) {
 		return nil, err
 	}
 	return hs, nil
+}
+
+func (uc *Usecase) UpdateHotel(ctx context.Context, p payloads.UpdateHotelPayload, id int64) (models.Hotel, error) {
+	var h models.Hotel
+	err := structs.Merge(&h, p)
+	if err != nil {
+		return h, err
+	}
+	err = uc.repo.UpdateHotel(ctx, h, id)
+	if err != nil {
+		return h, err
+	}
+	return h, nil
 }
