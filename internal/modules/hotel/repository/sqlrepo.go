@@ -14,16 +14,16 @@ const (
 	tableName = "hotels"
 )
 
-type SQLRepo struct {
+type HotelSQLRepo struct {
 	readDB, writeDB *sqlx.DB
 }
 
-func NewHotelSQLRepo(readDB, writeDB *sqlx.DB) *SQLRepo {
-	repo := SQLRepo{readDB: readDB, writeDB: writeDB}
+func NewHotelSQLRepo(readDB, writeDB *sqlx.DB) *HotelSQLRepo {
+	repo := HotelSQLRepo{readDB: readDB, writeDB: writeDB}
 	return &repo
 }
 
-func (repo *SQLRepo) InsertHotel(ctx context.Context, h *models.Hotel) error {
+func (repo *HotelSQLRepo) InsertHotel(ctx context.Context, h *models.Hotel) error {
 	query, args := sqls.GenerateInsertQuery(tableName, *h)
 	_, err := repo.writeDB.ExecContext(ctx, query, args...)
 	if err != nil {
@@ -31,7 +31,7 @@ func (repo *SQLRepo) InsertHotel(ctx context.Context, h *models.Hotel) error {
 	}
 	return nil
 }
-func (repo *SQLRepo) UpdateHotel(ctx context.Context, h models.Hotel, id int64) error {
+func (repo *HotelSQLRepo) UpdateHotel(ctx context.Context, h models.Hotel, id int64) error {
 	query, args := sqls.GenerateUpdateByIDQuery(tableName, h, id)
 	res, err := repo.writeDB.ExecContext(ctx, query, args...)
 	if err != nil {
@@ -48,7 +48,7 @@ func (repo *SQLRepo) UpdateHotel(ctx context.Context, h models.Hotel, id int64) 
 	return nil
 }
 
-func (repo *SQLRepo) FetchHotels(ctx context.Context) ([]models.Hotel, error) {
+func (repo *HotelSQLRepo) FetchHotels(ctx context.Context) ([]models.Hotel, error) {
 	query := "SELECT * FROM " + tableName
 	var hs []models.Hotel
 	err := repo.readDB.SelectContext(ctx, &hs, query)
@@ -58,7 +58,7 @@ func (repo *SQLRepo) FetchHotels(ctx context.Context) ([]models.Hotel, error) {
 	return hs, nil
 }
 
-func (repo *SQLRepo) DeleteHotel(ctx context.Context, id int64) error {
+func (repo *HotelSQLRepo) DeleteHotel(ctx context.Context, id int64) error {
 	query := "DELETE FROM " + tableName + " WHERE id = ?"
 	res, err := repo.writeDB.ExecContext(ctx, query, id)
 	if err != nil {
