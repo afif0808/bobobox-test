@@ -2,6 +2,7 @@ package repository
 
 import (
 	"context"
+	"errors"
 
 	"github.com/afif0808/bobobox_test/models"
 	"github.com/afif0808/bobobox_test/pkg/sqls"
@@ -47,5 +48,23 @@ func (repo *SQLRepo) FetchHotels(ctx context.Context) ([]models.Hotel, error) {
 		return nil, err
 	}
 	return hs, nil
+}
 
+func (repo *SQLRepo) DeleteHotel(ctx context.Context, id int64) error {
+	query := "DELETE FROM " + tableName + " WHERE id = ?"
+	res, err := repo.writeDB.ExecContext(ctx, query, id)
+	if err != nil {
+		return err
+	}
+	affected, err := res.RowsAffected()
+
+	if err != nil {
+		return err
+	}
+
+	if affected < 1 {
+		return errors.New("hotel wasn't found")
+	}
+
+	return nil
 }
