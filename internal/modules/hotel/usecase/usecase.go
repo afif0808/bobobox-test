@@ -13,20 +13,21 @@ type hotelRepository interface {
 	InsertHotel(ctx context.Context, h *models.Hotel) error
 	FetchHotels(ctx context.Context) ([]models.Hotel, error)
 	UpdateHotel(ctx context.Context, h models.Hotel, id int64) error
+	DeleteHotel(ctx context.Context, id int64) error
 }
 
-type Usecase struct {
+type HotelUsecase struct {
 	repo hotelRepository
 }
 
-func NewHotelUsecase(repo hotelRepository) *Usecase {
-	uc := Usecase{
+func NewHotelUsecase(repo hotelRepository) *HotelUsecase {
+	uc := HotelUsecase{
 		repo: repo,
 	}
 	return &uc
 }
 
-func (uc *Usecase) CreateHotel(ctx context.Context, p payloads.CreateHotelPayload) (models.Hotel, error) {
+func (uc *HotelUsecase) CreateHotel(ctx context.Context, p payloads.CreateHotelPayload) (models.Hotel, error) {
 	var h models.Hotel
 	err := structs.Merge(&h, p)
 	if err != nil {
@@ -46,7 +47,7 @@ func (uc *Usecase) CreateHotel(ctx context.Context, p payloads.CreateHotelPayloa
 	return h, nil
 }
 
-func (uc *Usecase) GetHotelList(ctx context.Context) ([]models.Hotel, error) {
+func (uc *HotelUsecase) GetHotelList(ctx context.Context) ([]models.Hotel, error) {
 	hs, err := uc.repo.FetchHotels(ctx)
 	if err != nil {
 		return nil, err
@@ -54,7 +55,7 @@ func (uc *Usecase) GetHotelList(ctx context.Context) ([]models.Hotel, error) {
 	return hs, nil
 }
 
-func (uc *Usecase) UpdateHotel(ctx context.Context, p payloads.UpdateHotelPayload, id int64) (models.Hotel, error) {
+func (uc *HotelUsecase) UpdateHotel(ctx context.Context, p payloads.UpdateHotelPayload, id int64) (models.Hotel, error) {
 	var h models.Hotel
 	err := structs.Merge(&h, p)
 	if err != nil {
@@ -65,4 +66,8 @@ func (uc *Usecase) UpdateHotel(ctx context.Context, p payloads.UpdateHotelPayloa
 		return h, err
 	}
 	return h, nil
+}
+
+func (uc *HotelUsecase) DeleteHotel(ctx context.Context, id int64) error {
+	return uc.repo.DeleteHotel(ctx, id)
 }
