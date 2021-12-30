@@ -14,6 +14,7 @@ type hotelRepository interface {
 	FetchHotels(ctx context.Context) ([]models.Hotel, error)
 	UpdateHotel(ctx context.Context, h models.Hotel, id int64) error
 	DeleteHotel(ctx context.Context, id int64) error
+	GetHotel(ctx context.Context, id int64) (models.Hotel, error)
 }
 
 type HotelUsecase struct {
@@ -70,4 +71,8 @@ func (uc *HotelUsecase) UpdateHotel(ctx context.Context, p payloads.UpdateHotelP
 
 func (uc *HotelUsecase) DeleteHotel(ctx context.Context, id int64) error {
 	return uc.repo.DeleteHotel(ctx, id)
+}
+
+func (uc *HotelUsecase) GetHotel(ctx context.Context, id int64) (models.Hotel, error) {
+	return uc.repo.GetHotel(ctx, id)
 }

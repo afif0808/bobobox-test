@@ -15,6 +15,7 @@ type Usecase interface {
 	UpdateHotel(ctx context.Context, payload payloads.UpdateHotelPayload, id int64) (models.Hotel, error)
 	DeleteHotel(ctx context.Context, id int64) error
 	GetHotelList(ctx context.Context) ([]models.Hotel, error)
+	GetHotel(ctx context.Context, id int64) (models.Hotel, error)
 }
 
 type HotelRestHandler struct {
@@ -30,6 +31,7 @@ func (hrh *HotelRestHandler) MountRoutes(e *echo.Echo) {
 	e.POST("/hotel/", hrh.CreateHotel)
 	e.PUT("/hotel/:id", hrh.UpdateHotel)
 	e.GET("/hotel/", hrh.GetHotelList)
+	e.GET("/hotel/:id", hrh.GetHotel)
 	e.DELETE("/hotel/:id", hrh.DeleteHotel)
 
 }
@@ -91,4 +93,14 @@ func (hrh *HotelRestHandler) DeleteHotel(c echo.Context) error {
 
 	}
 	return c.JSON(http.StatusOK, nil)
+}
+
+func (hrh *HotelRestHandler) GetHotel(c echo.Context) error {
+	ctx := c.Request().Context()
+	id, _ := strconv.ParseInt(c.Param("id"), 10, 64)
+	h, err := hrh.uc.GetHotel(ctx, id)
+	if err != nil {
+
+	}
+	return c.JSON(http.StatusOK, h.ToPayload())
 }

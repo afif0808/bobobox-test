@@ -76,3 +76,13 @@ func (repo *HotelSQLRepo) DeleteHotel(ctx context.Context, id int64) error {
 
 	return nil
 }
+
+func (repo *HotelSQLRepo) GetHotel(ctx context.Context, id int64) (models.Hotel, error) {
+	query := "SELECT * FROM " + tableName + " WHERE id = ?"
+	var h models.Hotel
+	err := repo.readDB.GetContext(ctx, &h, query, id)
+	if err != nil {
+		return h, err
+	}
+	return h, nil
+}
