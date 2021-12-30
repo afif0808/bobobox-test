@@ -33,10 +33,18 @@ func (repo *SQLRepo) InsertHotel(ctx context.Context, h *models.Hotel) error {
 }
 func (repo *SQLRepo) UpdateHotel(ctx context.Context, h models.Hotel, id int64) error {
 	query, args := sqls.GenerateUpdateByIDQuery(tableName, h, id)
-	_, err := repo.writeDB.ExecContext(ctx, query, args...)
+	res, err := repo.writeDB.ExecContext(ctx, query, args...)
 	if err != nil {
 		return err
 	}
+	affected, err := res.RowsAffected()
+	if err != nil {
+		return err
+	}
+	if affected < 1 {
+		return errors.New("hotel wasn't found")
+	}
+
 	return nil
 }
 
