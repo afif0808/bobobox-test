@@ -72,8 +72,9 @@ func (hrh *HotelRestHandler) UpdateHotel(c echo.Context) error {
 	}
 
 	id, _ := strconv.ParseInt(c.Param("id"), 10, 64)
-
 	hotel, err := hrh.uc.UpdateHotel(ctx, payload, id)
+	hotel.ID = id
+
 	if err != nil {
 		// error handling
 	}
