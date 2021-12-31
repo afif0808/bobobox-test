@@ -114,5 +114,5 @@ func (hrh *HotelRestHandler) GetHotel(c echo.Context) error {
 			customerrors.ErrorHTTPCode(err), "", nil, err,
 		).JSON(c.Response())
 	}
-	return wrapper.NewHTTPResponse(http.StatusOK, "", h, nil).JSON(c.Response())
+	return wrapper.NewHTTPResponse(http.StatusOK, "", h.ToPayload(), nil).JSON(c.Response())
 }
