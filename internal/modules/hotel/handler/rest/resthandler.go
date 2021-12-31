@@ -53,7 +53,7 @@ func (hrh *HotelRestHandler) CreateHotel(c echo.Context) error {
 		).JSON(c.Response())
 	}
 
-	return wrapper.NewHTTPResponse(http.StatusCreated, "", h, nil).JSON(c.Response())
+	return wrapper.NewHTTPResponse(http.StatusCreated, "", h.ToPayload(), nil).JSON(c.Response())
 }
 
 func (hrh *HotelRestHandler) GetHotelList(c echo.Context) error {
