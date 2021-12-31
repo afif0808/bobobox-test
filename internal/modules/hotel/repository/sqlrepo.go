@@ -3,6 +3,7 @@ package repository
 import (
 	"context"
 	"database/sql"
+	"errors"
 
 	"github.com/afif0808/bobobox_test/models"
 	"github.com/afif0808/bobobox_test/pkg/customerrors"
@@ -43,7 +44,7 @@ func (repo *HotelSQLRepo) UpdateHotel(ctx context.Context, h models.Hotel, id in
 		return err
 	}
 	if affected < 1 {
-		return customerrors.NewCustomError("hotel is not found", err, customerrors.ErrTypeNotFound)
+		return customerrors.NewCustomError("hotel is not found", errors.New("no rows is affected"), customerrors.ErrTypeNotFound)
 	}
 
 	return nil
@@ -70,7 +71,7 @@ func (repo *HotelSQLRepo) DeleteHotel(ctx context.Context, id int64) error {
 		return err
 	}
 	if affected < 1 {
-		return customerrors.NewCustomError("hotel is not found", err, customerrors.ErrTypeNotFound)
+		return customerrors.NewCustomError("hotel is not found", errors.New("no rows is affected"), customerrors.ErrTypeNotFound)
 	}
 
 	return nil
