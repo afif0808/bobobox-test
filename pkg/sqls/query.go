@@ -28,6 +28,7 @@ func GenerateInsertQuery(table string, data interface{}) (query string, args []i
 	query = strings.TrimSuffix(query, ",")
 	return
 }
+
 func GenerateUpdateQuery(table string, data interface{}) (query string, args []interface{}) {
 	query = "UPDATE " + table + " SET "
 	v := reflect.ValueOf(data)
@@ -79,4 +80,17 @@ func GenerateUpdateByIDQuery(table string, data, id interface{}) (query string, 
 	args = append(args, id)
 
 	return
+}
+
+func GenerateArgs(data interface{}) []interface{} {
+	args := []interface{}{}
+	v := reflect.ValueOf(data)
+	if v.Kind() == reflect.Ptr {
+		v = v.Elem()
+	}
+	n := v.Type().NumField()
+	for i := 0; i < n; i++ {
+		args = append(args, v.Field(i).Interface())
+	}
+	return args
 }
