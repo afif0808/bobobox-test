@@ -22,6 +22,7 @@ func (cerr customError) MarshalJSON() ([]byte, error) {
 }
 
 const ErrTypeNotFound customErrorType = "not found"
+const ErrTypeConflict customErrorType = "conflict"
 
 func NewCustomError(msg string, err error, typ customErrorType) error {
 	return customError{
@@ -47,6 +48,8 @@ func ErrorHTTPCode(err error) int {
 	switch cerr.Type {
 	case ErrTypeNotFound:
 		return http.StatusNotFound
+	case ErrTypeConflict:
+		return http.StatusConflict
 	}
 
 	return http.StatusInternalServerError
