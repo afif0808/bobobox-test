@@ -2,9 +2,10 @@ package repository
 
 import (
 	"context"
-	"errors"
+	"database/sql"
 
 	"github.com/afif0808/bobobox_test/models"
+	"github.com/afif0808/bobobox_test/pkg/customerrors"
 	"github.com/afif0808/bobobox_test/pkg/sqls"
 
 	"github.com/jmoiron/sqlx"
@@ -42,7 +43,7 @@ func (repo *HotelSQLRepo) UpdateHotel(ctx context.Context, h models.Hotel, id in
 		return err
 	}
 	if affected < 1 {
-		return errors.New("hotel wasn't found")
+		return customerrors.NewCustomError("hotel is not found", err, customerrors.ErrTypeNotFound)
 	}
 
 	return nil
@@ -65,13 +66,11 @@ func (repo *HotelSQLRepo) DeleteHotel(ctx context.Context, id int64) error {
 		return err
 	}
 	affected, err := res.RowsAffected()
-
 	if err != nil {
 		return err
 	}
-
 	if affected < 1 {
-		return errors.New("hotel wasn't found")
+		return customerrors.NewCustomError("hotel is not found", err, customerrors.ErrTypeNotFound)
 	}
 
 	return nil
@@ -81,7 +80,9 @@ func (repo *HotelSQLRepo) GetHotel(ctx context.Context, id int64) (models.Hotel,
 	query := "SELECT * FROM " + tableName + " WHERE id = ?"
 	var h models.Hotel
 	err := repo.readDB.GetContext(ctx, &h, query, id)
-	if err != nil {
+	if err != nil && err == sql.ErrNoRows {
+		return h, customerrors.NewCustomError("hotel is not found", err, customerrors.ErrTypeNotFound)
+	} else if err != nil {
 		return h, err
 	}
 	return h, nil
