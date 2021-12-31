@@ -22,6 +22,7 @@ func NewHTTPResponse(code int, message string, data interface{}, err error) *HTT
 	resp.Data = data
 	resp.Code = code
 	resp.Message = message
+	resp.Error = err
 	if err == nil && code < http.StatusBadRequest {
 		resp.Success = true
 	}
