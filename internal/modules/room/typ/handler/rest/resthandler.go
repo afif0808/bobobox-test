@@ -59,15 +59,15 @@ func (rtrh *RoomTypeRestHandler) CreateRoomType(c echo.Context) error {
 
 func (rtrh *RoomTypeRestHandler) GetRoomTypeList(c echo.Context) error {
 	ctx := c.Request().Context()
-	RoomTypes, err := rtrh.uc.GetRoomTypeList(ctx)
+	rts, err := rtrh.uc.GetRoomTypeList(ctx)
 	if err != nil {
 		return wrapper.NewHTTPResponse(
 			customerrors.ErrorHTTPCode(err), "", nil, err,
 		).JSON(c.Response())
 	}
-	results := make([]payloads.RoomTypePayload, len(RoomTypes))
+	results := make([]payloads.RoomTypePayload, len(rts))
 	for i := range results {
-		results[i] = RoomTypes[i].ToPayload()
+		results[i] = rts[i].ToPayload()
 	}
 
 	return wrapper.NewHTTPResponse(http.StatusOK, "", results, nil).JSON(c.Response())
@@ -82,8 +82,8 @@ func (rtrh *RoomTypeRestHandler) UpdateRoomType(c echo.Context) error {
 	}
 
 	id, _ := strconv.ParseInt(c.Param("id"), 10, 64)
-	RoomType, err := rtrh.uc.UpdateRoomType(ctx, payload, id)
-	RoomType.ID = id
+	rt, err := rtrh.uc.UpdateRoomType(ctx, payload, id)
+	rt.ID = id
 
 	if err != nil {
 		log.Println(err)
@@ -92,7 +92,7 @@ func (rtrh *RoomTypeRestHandler) UpdateRoomType(c echo.Context) error {
 		).JSON(c.Response())
 	}
 
-	return wrapper.NewHTTPResponse(http.StatusOK, "", RoomType.ToPayload(), nil).JSON(c.Response())
+	return wrapper.NewHTTPResponse(http.StatusOK, "", rt.ToPayload(), nil).JSON(c.Response())
 }
 
 func (rtrh *RoomTypeRestHandler) DeleteRoomType(c echo.Context) error {
