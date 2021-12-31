@@ -7,6 +7,8 @@ import (
 
 	"github.com/afif0808/bobobox_test/models"
 	"github.com/afif0808/bobobox_test/payloads"
+	"github.com/afif0808/bobobox_test/pkg/customerrors"
+	"github.com/afif0808/bobobox_test/pkg/wrapper"
 	"github.com/labstack/echo/v4"
 )
 
@@ -41,29 +43,33 @@ func (hrh *HotelRestHandler) CreateHotel(c echo.Context) error {
 	var payload payloads.CreateHotelPayload
 	err := c.Bind(&payload)
 	if err != nil {
-		// error handling
+		return wrapper.NewHTTPResponse(http.StatusBadRequest, "", nil, err).JSON(c.Response())
 	}
 
-	hotel, err := hrh.uc.CreateHotel(ctx, payload)
+	h, err := hrh.uc.CreateHotel(ctx, payload)
 	if err != nil {
-		// error handling
+		return wrapper.NewHTTPResponse(
+			customerrors.ErrorHTTPCode(err), "", nil, err,
+		).JSON(c.Response())
 	}
 
-	return c.JSON(http.StatusCreated, hotel.ToPayload())
+	return wrapper.NewHTTPResponse(http.StatusCreated, "", h, nil).JSON(c.Response())
 }
 
 func (hrh *HotelRestHandler) GetHotelList(c echo.Context) error {
 	ctx := c.Request().Context()
 	hotels, err := hrh.uc.GetHotelList(ctx)
 	if err != nil {
-		// error handling
+		return wrapper.NewHTTPResponse(
+			customerrors.ErrorHTTPCode(err), "", nil, err,
+		).JSON(c.Response())
 	}
 	results := make([]payloads.HotelPayload, len(hotels))
 	for i := range results {
 		results[i] = hotels[i].ToPayload()
 	}
 
-	return c.JSON(http.StatusOK, results)
+	return wrapper.NewHTTPResponse(http.StatusOK, "", results, nil).JSON(c.Response())
 }
 
 func (hrh *HotelRestHandler) UpdateHotel(c echo.Context) error {
@@ -71,7 +77,7 @@ func (hrh *HotelRestHandler) UpdateHotel(c echo.Context) error {
 	var payload payloads.UpdateHotelPayload
 	err := c.Bind(&payload)
 	if err != nil {
-		// error handling
+		return wrapper.NewHTTPResponse(http.StatusBadRequest, "", nil, err).JSON(c.Response())
 	}
 
 	id, _ := strconv.ParseInt(c.Param("id"), 10, 64)
@@ -79,10 +85,12 @@ func (hrh *HotelRestHandler) UpdateHotel(c echo.Context) error {
 	hotel.ID = id
 
 	if err != nil {
-		// error handling
+		return wrapper.NewHTTPResponse(
+			customerrors.ErrorHTTPCode(err), "", nil, err,
+		).JSON(c.Response())
 	}
 
-	return c.JSON(http.StatusCreated, hotel.ToPayload())
+	return wrapper.NewHTTPResponse(http.StatusOK, "", hotel.ToPayload(), nil).JSON(c.Response())
 }
 
 func (hrh *HotelRestHandler) DeleteHotel(c echo.Context) error {
@@ -90,9 +98,11 @@ func (hrh *HotelRestHandler) DeleteHotel(c echo.Context) error {
 	id, _ := strconv.ParseInt(c.Param("id"), 10, 64)
 	err := hrh.uc.DeleteHotel(ctx, id)
 	if err != nil {
-
+		return wrapper.NewHTTPResponse(
+			customerrors.ErrorHTTPCode(err), "", nil, err,
+		).JSON(c.Response())
 	}
-	return c.JSON(http.StatusOK, nil)
+	return wrapper.NewHTTPResponse(http.StatusOK, "", nil, nil).JSON(c.Response())
 }
 
 func (hrh *HotelRestHandler) GetHotel(c echo.Context) error {
@@ -100,7 +110,9 @@ func (hrh *HotelRestHandler) GetHotel(c echo.Context) error {
 	id, _ := strconv.ParseInt(c.Param("id"), 10, 64)
 	h, err := hrh.uc.GetHotel(ctx, id)
 	if err != nil {
-
+		return wrapper.NewHTTPResponse(
+			customerrors.ErrorHTTPCode(err), "", nil, err,
+		).JSON(c.Response())
 	}
-	return c.JSON(http.StatusOK, h.ToPayload())
+	return wrapper.NewHTTPResponse(http.StatusOK, "", h, nil).JSON(c.Response())
 }
