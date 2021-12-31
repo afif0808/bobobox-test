@@ -29,44 +29,44 @@ func NewRoomTypeUsecase(repo roomTypeRepository) *RoomTypeUsecase {
 }
 
 func (uc *RoomTypeUsecase) CreateRoomType(ctx context.Context, p payloads.CreateRoomTypePayload) (models.RoomType, error) {
-	var h models.RoomType
-	err := structs.Merge(&h, p)
+	var rt models.RoomType
+	err := structs.Merge(&rt, p)
 	if err != nil {
-		return h, err
+		return rt, err
 	}
 
-	h.ID, err = snowflake.GenerateID()
+	rt.ID, err = snowflake.GenerateID()
 	if err != nil {
-		return h, err
+		return rt, err
 	}
 
-	err = uc.repo.InsertRoomType(ctx, &h)
+	err = uc.repo.InsertRoomType(ctx, &rt)
 	if err != nil {
-		return h, err
+		return rt, err
 	}
 
-	return h, nil
+	return rt, nil
 }
 
 func (uc *RoomTypeUsecase) GetRoomTypeList(ctx context.Context) ([]models.RoomType, error) {
-	hs, err := uc.repo.FetchRoomTypes(ctx)
+	rts, err := uc.repo.FetchRoomTypes(ctx)
 	if err != nil {
 		return nil, err
 	}
-	return hs, nil
+	return rts, nil
 }
 
 func (uc *RoomTypeUsecase) UpdateRoomType(ctx context.Context, p payloads.UpdateRoomTypePayload, id int64) (models.RoomType, error) {
-	var h models.RoomType
-	err := structs.Merge(&h, p)
+	var rt models.RoomType
+	err := structs.Merge(&rt, p)
 	if err != nil {
-		return h, err
+		return rt, err
 	}
-	err = uc.repo.UpdateRoomType(ctx, h, id)
+	err = uc.repo.UpdateRoomType(ctx, rt, id)
 	if err != nil {
-		return h, err
+		return rt, err
 	}
-	return h, nil
+	return rt, nil
 }
 
 func (uc *RoomTypeUsecase) DeleteRoomType(ctx context.Context, id int64) error {

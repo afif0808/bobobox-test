@@ -26,20 +26,20 @@ type RoomTypeRestHandler struct {
 }
 
 func NewRoomTypeRestHandler(uc Usecase) *RoomTypeRestHandler {
-	hrh := RoomTypeRestHandler{uc: uc}
-	return &hrh
+	rtrh := RoomTypeRestHandler{uc: uc}
+	return &rtrh
 }
 
-func (hrh *RoomTypeRestHandler) MountRoutes(e *echo.Echo) {
-	e.POST("/room/type/", hrh.CreateRoomType)
-	e.PUT("/room/type/:id", hrh.UpdateRoomType)
-	e.GET("/room/type/", hrh.GetRoomTypeList)
-	e.GET("/room/type/:id", hrh.GetRoomType)
-	e.DELETE("/room/type/:id", hrh.DeleteRoomType)
+func (rtrh *RoomTypeRestHandler) MountRoutes(e *echo.Echo) {
+	e.POST("/room/type/", rtrh.CreateRoomType)
+	e.PUT("/room/type/:id", rtrh.UpdateRoomType)
+	e.GET("/room/type/", rtrh.GetRoomTypeList)
+	e.GET("/room/type/:id", rtrh.GetRoomType)
+	e.DELETE("/room/type/:id", rtrh.DeleteRoomType)
 
 }
 
-func (hrh *RoomTypeRestHandler) CreateRoomType(c echo.Context) error {
+func (rtrh *RoomTypeRestHandler) CreateRoomType(c echo.Context) error {
 	ctx := c.Request().Context()
 	var payload payloads.CreateRoomTypePayload
 	err := c.Bind(&payload)
@@ -47,19 +47,19 @@ func (hrh *RoomTypeRestHandler) CreateRoomType(c echo.Context) error {
 		return wrapper.NewHTTPResponse(http.StatusBadRequest, "", nil, err).JSON(c.Response())
 	}
 
-	h, err := hrh.uc.CreateRoomType(ctx, payload)
+	rt, err := rtrh.uc.CreateRoomType(ctx, payload)
 	if err != nil {
 		return wrapper.NewHTTPResponse(
 			customerrors.ErrorHTTPCode(err), "", nil, err,
 		).JSON(c.Response())
 	}
 
-	return wrapper.NewHTTPResponse(http.StatusCreated, "", h.ToPayload(), nil).JSON(c.Response())
+	return wrapper.NewHTTPResponse(http.StatusCreated, "", rt.ToPayload(), nil).JSON(c.Response())
 }
 
-func (hrh *RoomTypeRestHandler) GetRoomTypeList(c echo.Context) error {
+func (rtrh *RoomTypeRestHandler) GetRoomTypeList(c echo.Context) error {
 	ctx := c.Request().Context()
-	RoomTypes, err := hrh.uc.GetRoomTypeList(ctx)
+	RoomTypes, err := rtrh.uc.GetRoomTypeList(ctx)
 	if err != nil {
 		return wrapper.NewHTTPResponse(
 			customerrors.ErrorHTTPCode(err), "", nil, err,
@@ -73,7 +73,7 @@ func (hrh *RoomTypeRestHandler) GetRoomTypeList(c echo.Context) error {
 	return wrapper.NewHTTPResponse(http.StatusOK, "", results, nil).JSON(c.Response())
 }
 
-func (hrh *RoomTypeRestHandler) UpdateRoomType(c echo.Context) error {
+func (rtrh *RoomTypeRestHandler) UpdateRoomType(c echo.Context) error {
 	ctx := c.Request().Context()
 	var payload payloads.UpdateRoomTypePayload
 	err := c.Bind(&payload)
@@ -82,7 +82,7 @@ func (hrh *RoomTypeRestHandler) UpdateRoomType(c echo.Context) error {
 	}
 
 	id, _ := strconv.ParseInt(c.Param("id"), 10, 64)
-	RoomType, err := hrh.uc.UpdateRoomType(ctx, payload, id)
+	RoomType, err := rtrh.uc.UpdateRoomType(ctx, payload, id)
 	RoomType.ID = id
 
 	if err != nil {
@@ -95,10 +95,10 @@ func (hrh *RoomTypeRestHandler) UpdateRoomType(c echo.Context) error {
 	return wrapper.NewHTTPResponse(http.StatusOK, "", RoomType.ToPayload(), nil).JSON(c.Response())
 }
 
-func (hrh *RoomTypeRestHandler) DeleteRoomType(c echo.Context) error {
+func (rtrh *RoomTypeRestHandler) DeleteRoomType(c echo.Context) error {
 	ctx := c.Request().Context()
 	id, _ := strconv.ParseInt(c.Param("id"), 10, 64)
-	err := hrh.uc.DeleteRoomType(ctx, id)
+	err := rtrh.uc.DeleteRoomType(ctx, id)
 	if err != nil {
 		return wrapper.NewHTTPResponse(
 			customerrors.ErrorHTTPCode(err), "", nil, err,
@@ -107,14 +107,14 @@ func (hrh *RoomTypeRestHandler) DeleteRoomType(c echo.Context) error {
 	return wrapper.NewHTTPResponse(http.StatusOK, "", nil, nil).JSON(c.Response())
 }
 
-func (hrh *RoomTypeRestHandler) GetRoomType(c echo.Context) error {
+func (rtrh *RoomTypeRestHandler) GetRoomType(c echo.Context) error {
 	ctx := c.Request().Context()
 	id, _ := strconv.ParseInt(c.Param("id"), 10, 64)
-	h, err := hrh.uc.GetRoomType(ctx, id)
+	rt, err := rtrh.uc.GetRoomType(ctx, id)
 	if err != nil {
 		return wrapper.NewHTTPResponse(
 			customerrors.ErrorHTTPCode(err), "", nil, err,
 		).JSON(c.Response())
 	}
-	return wrapper.NewHTTPResponse(http.StatusOK, "", h.ToPayload(), nil).JSON(c.Response())
+	return wrapper.NewHTTPResponse(http.StatusOK, "", rt.ToPayload(), nil).JSON(c.Response())
 }

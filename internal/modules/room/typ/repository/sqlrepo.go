@@ -42,12 +42,12 @@ func (repo *RoomTypeSQLRepo) UpdateRoomType(ctx context.Context, rt models.RoomT
 
 func (repo *RoomTypeSQLRepo) FetchRoomTypes(ctx context.Context) ([]models.RoomType, error) {
 	query := "SELECT * FROM " + tableName
-	var hs []models.RoomType
-	err := repo.readDB.SelectContext(ctx, &hs, query)
+	var rts []models.RoomType
+	err := repo.readDB.SelectContext(ctx, &rts, query)
 	if err != nil {
 		return nil, err
 	}
-	return hs, nil
+	return rts, nil
 }
 
 func (repo *RoomTypeSQLRepo) DeleteRoomType(ctx context.Context, id int64) error {
@@ -60,10 +60,10 @@ func (repo *RoomTypeSQLRepo) DeleteRoomType(ctx context.Context, id int64) error
 
 func (repo *RoomTypeSQLRepo) GetRoomType(ctx context.Context, id int64) (models.RoomType, error) {
 	query := "SELECT * FROM " + tableName + " WHERE id = ?"
-	var h models.RoomType
-	err := repo.readDB.GetContext(ctx, &h, query, id)
+	var rt models.RoomType
+	err := repo.readDB.GetContext(ctx, &rt, query, id)
 	if err == sql.ErrNoRows {
-		return h, customerrors.NewCustomError("room type is not found", err, customerrors.ErrTypeNotFound)
+		return rt, customerrors.NewCustomError("room type is not found", err, customerrors.ErrTypeNotFound)
 	}
-	return h, err
+	return rt, err
 }
