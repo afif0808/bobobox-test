@@ -1,6 +1,9 @@
 package customerrors
 
-import "net/http"
+import (
+	"encoding/json"
+	"net/http"
+)
 
 type customError struct {
 	Type    customErrorType
@@ -12,6 +15,10 @@ type customErrorType string
 
 func (cerr customError) Error() string {
 	return cerr.Message + " : " + cerr.Err.Error()
+}
+
+func (cerr customError) MarshalJSON() ([]byte, error) {
+	return json.Marshal(cerr.Message + " : " + cerr.Err.Error())
 }
 
 const ErrTypeNotFound customErrorType = "not found"
