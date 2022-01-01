@@ -10,9 +10,9 @@ import (
 )
 
 type roomTypeRepository interface {
-	InsertRoomType(ctx context.Context, h *models.RoomType) error
+	InsertRoomType(ctx context.Context, rt *models.RoomType) error
 	FetchRoomTypes(ctx context.Context) ([]models.RoomType, error)
-	UpdateRoomType(ctx context.Context, h models.RoomType, id int64) error
+	UpdateRoomType(ctx context.Context, rt models.RoomType, id int64) error
 	DeleteRoomType(ctx context.Context, id int64) error
 	GetRoomType(ctx context.Context, id int64) (models.RoomType, error)
 }
