@@ -12,9 +12,11 @@ import (
 type roomRepository interface {
 	InsertRoom(ctx context.Context, r *models.Room) error
 	FetchRooms(ctx context.Context) ([]models.Room, error)
+	FetchHotelRooms(ctx context.Context, id int64) ([]models.Room, error)
 	UpdateRoom(ctx context.Context, r models.Room, id int64) error
 	DeleteRoom(ctx context.Context, id int64) error
 	GetRoom(ctx context.Context, id int64) (models.Room, error)
+	GetAvailableRooms(ctx context.Context, checkInDate, checkOutDate string, roomTypeID int64) ([]models.AvailableRoom, error)
 }
 
 type roomTypeRepository interface {
@@ -25,16 +27,22 @@ type hotelRepository interface {
 	GetHotel(ctx context.Context, id int64) (models.Hotel, error)
 }
 
+type roomPriceRepository interface {
+	FetchRoomTypePricesByDateRange(ctx context.Context, roomTypeID int64, from, until string) ([]models.RoomPrice, error)
+}
+
 type RoomUsecase struct {
 	rRepo  roomRepository
 	rtRepo roomTypeRepository
+	rpRepo roomPriceRepository
 	hRepo  hotelRepository
 }
 
-func NewRoomUsecase(rRepo roomRepository, rtRepo roomTypeRepository, hRepo hotelRepository) *RoomUsecase {
+func NewRoomUsecase(rRepo roomRepository, rtRepo roomTypeRepository, hRepo hotelRepository, rpRepo roomPriceRepository) *RoomUsecase {
 	uc := RoomUsecase{
 		rRepo:  rRepo,
 		rtRepo: rtRepo,
+		rpRepo: rpRepo,
 		hRepo:  hRepo,
 	}
 
@@ -75,6 +83,14 @@ func (uc *RoomUsecase) GetRoomList(ctx context.Context) ([]models.Room, error) {
 	return rs, nil
 }
 
+func (uc *RoomUsecase) GetHotelRoomList(ctx context.Context, id int64) ([]models.Room, error) {
+	rs, err := uc.rRepo.FetchHotelRooms(ctx, id)
+	if err != nil {
+		return nil, err
+	}
+	return rs, nil
+}
+
 func (uc *RoomUsecase) UpdateRoom(ctx context.Context, p payloads.UpdateRoomPayload, id int64) error {
 	var r models.Room
 	err := structs.Merge(&r, p)
@@ -101,4 +117,32 @@ func (uc *RoomUsecase) DeleteRoom(ctx context.Context, id int64) error {
 
 func (uc *RoomUsecase) GetRoom(ctx context.Context, id int64) (models.Room, error) {
 	return uc.rRepo.GetRoom(ctx, id)
+}
+
+func (uc *RoomUsecase) GetAvailableRooms(ctx context.Context, p payloads.AvailableRoomInquiryPayload) (payloads.AvaiableRoomSummaryPayload, error) {
+	var payload payloads.AvaiableRoomSummaryPayload
+	structs.Merge(&payload, p)
+	var rps []models.RoomPrice
+	var err error
+	rps, payload.TotalPrice, err = uc.getAvailableRoomPrices(ctx, p.CheckInDate, p.CheckOutDate, p.RoomTypeID)
+	if err != nil {
+		return payload, err
+	}
+	ars, err := uc.rRepo.GetAvailableRooms(ctx, p.CheckInDate, p.CheckOutDate, p.RoomTypeID)
+	if err != nil {
+		return payload, err
+	}
+
+	if p.RoomCount != 0 && len(ars) < p.RoomCount {
+		payload.Message = "there's not enough room as you requested, however here's available rooms we have"
+	}
+
+	payload.Rooms = make([]payloads.AvailableRoomPayload, len(ars))
+	for i := range ars {
+		ars[i].Prices = rps
+		payload.Rooms[i] = ars[i].ToPayload()
+	}
+
+	return payload, nil
+
 }

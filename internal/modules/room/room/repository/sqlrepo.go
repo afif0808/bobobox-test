@@ -82,6 +82,19 @@ func (repo *RoomSQLRepo) FetchRooms(ctx context.Context) ([]models.Room, error) 
 	return rs, err
 }
 
+func (repo *RoomSQLRepo) FetchHotelRooms(ctx context.Context, hotelID int64) ([]models.Room, error) {
+	query := "SELECT * FROM " + tableName + " WHERE hotel_id = ?"
+	var rs []models.Room
+	err := repo.readDB.SelectContext(ctx, &rs, query, hotelID)
+	if err != nil {
+		return nil, err
+	}
+
+	err = repo.fillManyHotelAndType(ctx, rs)
+
+	return rs, err
+}
+
 func (repo *RoomSQLRepo) DeleteRoom(ctx context.Context, id int64) error {
 	err := sqls.Delete(ctx, repo.writeDB, tableName, id)
 	if err == sql.ErrNoRows {
@@ -104,4 +117,14 @@ func (repo *RoomSQLRepo) GetRoom(ctx context.Context, id int64) (models.Room, er
 	}
 
 	return r, err
+}
+
+func (repo *RoomSQLRepo) GetAvailableRooms(ctx context.Context, checkInDate, checkOutDate string, roomTypeID int64) ([]models.AvailableRoom, error) {
+	query := "SELECT rooms.id, rooms.number , rooms.hotel_id , hotels.name as hotel_name FROM " + tableName + " INNER JOIN hotels ON hotels.id = rooms.hotel_id WHERE room_type_id = ? AND is_in_service = true AND  !EXISTS(SELECT NULL FROM stay_dates WHERE room_id = rooms.id AND stay_dates.date >= ? AND stay_dates.date <= ?)"
+	var ars []models.AvailableRoom
+	err := repo.readDB.SelectContext(ctx, &ars, query, roomTypeID, checkInDate, checkOutDate)
+	if err != nil {
+		return nil, err
+	}
+	return ars, nil
 }
