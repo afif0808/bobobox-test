@@ -35,7 +35,6 @@ func (hrh *HotelRestHandler) MountRoutes(e *echo.Echo) {
 	e.GET("/hotel/", hrh.GetHotelList)
 	e.GET("/hotel/:id", hrh.GetHotel)
 	e.DELETE("/hotel/:id", hrh.DeleteHotel)
-
 }
 
 func (hrh *HotelRestHandler) CreateHotel(c echo.Context) error {
@@ -43,17 +42,17 @@ func (hrh *HotelRestHandler) CreateHotel(c echo.Context) error {
 	var payload payloads.CreateHotelPayload
 	err := c.Bind(&payload)
 	if err != nil {
-		return wrapper.NewHTTPResponse(http.StatusBadRequest, "", nil, err).JSON(c.Response())
+		return wrapper.NewHTTPResponse(http.StatusBadRequest, nil, err).JSON(c.Response())
 	}
 
 	h, err := hrh.uc.CreateHotel(ctx, payload)
 	if err != nil {
 		return wrapper.NewHTTPResponse(
-			customerrors.ErrorHTTPCode(err), "", nil, err,
+			customerrors.ErrorHTTPCode(err), nil, err,
 		).JSON(c.Response())
 	}
 
-	return wrapper.NewHTTPResponse(http.StatusCreated, "", h.ToPayload(), nil).JSON(c.Response())
+	return wrapper.NewHTTPResponse(http.StatusCreated, h.ToPayload(), nil).JSON(c.Response())
 }
 
 func (hrh *HotelRestHandler) GetHotelList(c echo.Context) error {
@@ -61,7 +60,7 @@ func (hrh *HotelRestHandler) GetHotelList(c echo.Context) error {
 	hotels, err := hrh.uc.GetHotelList(ctx)
 	if err != nil {
 		return wrapper.NewHTTPResponse(
-			customerrors.ErrorHTTPCode(err), "", nil, err,
+			customerrors.ErrorHTTPCode(err), nil, err,
 		).JSON(c.Response())
 	}
 	results := make([]payloads.HotelPayload, len(hotels))
@@ -69,7 +68,7 @@ func (hrh *HotelRestHandler) GetHotelList(c echo.Context) error {
 		results[i] = hotels[i].ToPayload()
 	}
 
-	return wrapper.NewHTTPResponse(http.StatusOK, "", results, nil).JSON(c.Response())
+	return wrapper.NewHTTPResponse(http.StatusOK, results, nil).JSON(c.Response())
 }
 
 func (hrh *HotelRestHandler) UpdateHotel(c echo.Context) error {
@@ -77,7 +76,7 @@ func (hrh *HotelRestHandler) UpdateHotel(c echo.Context) error {
 	var payload payloads.UpdateHotelPayload
 	err := c.Bind(&payload)
 	if err != nil {
-		return wrapper.NewHTTPResponse(http.StatusBadRequest, "", nil, err).JSON(c.Response())
+		return wrapper.NewHTTPResponse(http.StatusBadRequest, nil, err).JSON(c.Response())
 	}
 
 	id, _ := strconv.ParseInt(c.Param("id"), 10, 64)
@@ -86,11 +85,11 @@ func (hrh *HotelRestHandler) UpdateHotel(c echo.Context) error {
 
 	if err != nil {
 		return wrapper.NewHTTPResponse(
-			customerrors.ErrorHTTPCode(err), "", nil, err,
+			customerrors.ErrorHTTPCode(err), nil, err,
 		).JSON(c.Response())
 	}
 
-	return wrapper.NewHTTPResponse(http.StatusOK, "", hotel.ToPayload(), nil).JSON(c.Response())
+	return wrapper.NewHTTPResponse(http.StatusOK, hotel.ToPayload(), nil).JSON(c.Response())
 }
 
 func (hrh *HotelRestHandler) DeleteHotel(c echo.Context) error {
@@ -99,10 +98,10 @@ func (hrh *HotelRestHandler) DeleteHotel(c echo.Context) error {
 	err := hrh.uc.DeleteHotel(ctx, id)
 	if err != nil {
 		return wrapper.NewHTTPResponse(
-			customerrors.ErrorHTTPCode(err), "", nil, err,
+			customerrors.ErrorHTTPCode(err), nil, err,
 		).JSON(c.Response())
 	}
-	return wrapper.NewHTTPResponse(http.StatusOK, "", nil, nil).JSON(c.Response())
+	return wrapper.NewHTTPResponse(http.StatusOK, nil, nil).JSON(c.Response())
 }
 
 func (hrh *HotelRestHandler) GetHotel(c echo.Context) error {
@@ -111,8 +110,8 @@ func (hrh *HotelRestHandler) GetHotel(c echo.Context) error {
 	h, err := hrh.uc.GetHotel(ctx, id)
 	if err != nil {
 		return wrapper.NewHTTPResponse(
-			customerrors.ErrorHTTPCode(err), "", nil, err,
+			customerrors.ErrorHTTPCode(err), nil, err,
 		).JSON(c.Response())
 	}
-	return wrapper.NewHTTPResponse(http.StatusOK, "", h.ToPayload(), nil).JSON(c.Response())
+	return wrapper.NewHTTPResponse(http.StatusOK, h.ToPayload(), nil).JSON(c.Response())
 }
