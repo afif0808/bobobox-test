@@ -2,7 +2,6 @@ package usecase
 
 import (
 	"context"
-	"log"
 	"time"
 
 	"github.com/afif0808/bobobox_test/models"
@@ -42,7 +41,6 @@ func (uc *RoomUsecase) fillMissingPrice(ctx context.Context, rps []models.RoomPr
 	result := make([]models.RoomPrice, int(dayCount))
 
 	for i, j := 0, 0; from.Before(until) || from.Equal(until); j++ {
-		log.Println(from, i, len(rps))
 		if len(rps) != 0 && i < len(rps) && from.Format("2006-01-02") == rps[i].Date {
 			result[j] = rps[i]
 			i++
