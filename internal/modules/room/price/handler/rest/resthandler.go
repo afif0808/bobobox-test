@@ -39,8 +39,11 @@ func (rprh *RoomPriceRestHandler) MountRoutes(e *echo.Echo) {
 
 func (rprh *RoomPriceRestHandler) CreateRoomPrices(c echo.Context) error {
 	ctx := c.Request().Context()
-	var payload payloads.CreateRoomPricePayload
-	err := c.Bind(&payload)
+	payload, err := getCreateRoomPricePayload(c)
+	if err != nil {
+		return wrapper.NewHTTPResponse(http.StatusBadRequest, nil, err).JSON(c.Response())
+	}
+
 	if err != nil {
 		return wrapper.NewHTTPResponse(http.StatusBadRequest, nil, err).JSON(c.Response())
 	}
@@ -72,8 +75,7 @@ func (rprh *RoomPriceRestHandler) GetRoomTypePriceList(c echo.Context) error {
 
 func (rprh *RoomPriceRestHandler) UpdateRoomPrice(c echo.Context) error {
 	ctx := c.Request().Context()
-	var payload payloads.UpdateRoomPricePayload
-	err := c.Bind(&payload)
+	payload, err := getUpdateRoomPricePayload(c)
 	if err != nil {
 		return wrapper.NewHTTPResponse(http.StatusBadRequest, nil, err).JSON(c.Response())
 	}
