@@ -93,3 +93,13 @@ func (repo *RoomPriceSQLRepo) InsertManyRoomPrice(ctx context.Context, rps []mod
 
 	return err
 }
+
+func (repo *RoomPriceSQLRepo) FetchRoomTypePricesByDateRange(ctx context.Context, roomTypeID int64, from, until string) ([]models.RoomPrice, error) {
+	query := "SELECT id,room_type_id,price,DATE_FORMAT(date, '%Y-%m-%d') as date FROM " + tableName + " WHERE room_type_id = ? AND date >= ? AND date <= ?"
+	var rps []models.RoomPrice
+	err := repo.readDB.SelectContext(ctx, &rps, query, roomTypeID, from, until)
+	if err != nil {
+		return nil, err
+	}
+	return rps, nil
+}
