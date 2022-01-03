@@ -6,6 +6,7 @@ type CreateReservationPayload struct {
 	HotelID      int64               `json:"hotel_id" merge:"hotel_id" valid:"required"`
 	CheckInDate  string              `json:"check_in_date" merge:"check_in_date" valid:"required"`
 	CheckOutDate string              `json:"check_out_date" merge:"check_out_date" valid:"required"`
+	PromoID      int64               `json:"promo_id"`
 }
 
 type ReservationPayload struct {
