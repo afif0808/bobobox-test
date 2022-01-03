@@ -42,8 +42,7 @@ func (prh *PromoRestHandler) MountRoutes(e *echo.Echo) {
 
 func (prh *PromoRestHandler) CreatePromo(c echo.Context) error {
 	ctx := c.Request().Context()
-	var payload payloads.CreatePromoPayload
-	err := c.Bind(&payload)
+	payload, err := getCreatePromoPayload(c)
 	if err != nil {
 		return wrapper.NewHTTPResponse(http.StatusBadRequest, nil, err).JSON(c.Response())
 	}
@@ -76,8 +75,7 @@ func (prh *PromoRestHandler) GetPromoList(c echo.Context) error {
 
 func (prh *PromoRestHandler) UpdatePromo(c echo.Context) error {
 	ctx := c.Request().Context()
-	var payload payloads.UpdatePromoPayload
-	err := c.Bind(&payload)
+	payload, err := getUpdatePromoPayload(c)
 	if err != nil {
 		return wrapper.NewHTTPResponse(http.StatusBadRequest, nil, err).JSON(c.Response())
 	}
