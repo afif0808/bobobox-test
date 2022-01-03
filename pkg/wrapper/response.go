@@ -11,17 +11,15 @@ import (
 type HTTPResponse struct {
 	Success bool        `json:"success"`
 	Code    int         `json:"code"`
-	Message string      `json:"message"`
 	Data    interface{} `json:"data,omitempty"`
 	Error   error       `json:"error,omitempty"`
 }
 
 // NewHTTPResponse for create common response
-func NewHTTPResponse(code int, message string, data interface{}, err error) *HTTPResponse {
+func NewHTTPResponse(code int, data interface{}, err error) *HTTPResponse {
 	resp := new(HTTPResponse)
 	resp.Data = data
 	resp.Code = code
-	resp.Message = message
 	resp.Error = err
 	if err == nil && code < http.StatusBadRequest {
 		resp.Success = true
