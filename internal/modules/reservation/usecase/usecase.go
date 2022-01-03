@@ -2,6 +2,7 @@ package usecase
 
 import (
 	"context"
+	"time"
 
 	"github.com/afif0808/bobobox_test/models"
 	"github.com/afif0808/bobobox_test/payloads"
@@ -10,19 +11,26 @@ import (
 )
 
 type reservationRepository interface {
-	InsertReservation(ctx context.Context, re *models.Reservation) error
+	InsertReservation(ctx context.Context, re *models.Reservation, pru *models.PromoUse) error
 	FetchReservations(ctx context.Context) ([]models.Reservation, error)
 	DeleteReservation(ctx context.Context, id int64) error
 	GetReservation(ctx context.Context, id int64) (models.Reservation, error)
 }
 
-type ReservationUsecase struct {
-	reRepo reservationRepository
+type promoRepository interface {
+	GetPromo(ctx context.Context, id int64) (models.Promo, error)
+	GetPromoUsedQuotaByDate(ctx context.Context, promoID int64, date string) (int, error)
 }
 
-func NewReservationUsecase(reRepo reservationRepository) *ReservationUsecase {
+type ReservationUsecase struct {
+	reRepo reservationRepository
+	prRepo promoRepository
+}
+
+func NewReservationUsecase(reRepo reservationRepository, prRepo promoRepository) *ReservationUsecase {
 	uc := ReservationUsecase{
 		reRepo: reRepo,
+		prRepo: prRepo,
 	}
 	return &uc
 }
@@ -38,14 +46,27 @@ func (uc *ReservationUsecase) CreateReservation(ctx context.Context, p payloads.
 	if err != nil {
 		return re, err
 	}
-	re.BookedRoomCount = len(p.Stays)
 
+	re.BookedRoomCount = len(p.Stays)
 	re.Stays, err = convertCreateStayPayloadToStayModel(p.Stays)
 	if err != nil {
 		return re, err
 	}
 
-	err = uc.reRepo.InsertReservation(ctx, &re)
+	err = uc.checkPromo(ctx, p)
+	if err != nil {
+		return re, err
+	}
+	var pru *models.PromoUse
+	// use promo if given
+	if p.PromoID != 0 {
+		pru = &models.PromoUse{
+			ReservationID: re.ID,
+			PromoID:       p.PromoID,
+			BookingDate:   time.Now().Format("2006-01-02"),
+		}
+	}
+	err = uc.reRepo.InsertReservation(ctx, &re, pru)
 	if err != nil {
 		return re, err
 	}
