@@ -39,8 +39,7 @@ func (hrh *HotelRestHandler) MountRoutes(e *echo.Echo) {
 
 func (hrh *HotelRestHandler) CreateHotel(c echo.Context) error {
 	ctx := c.Request().Context()
-	var payload payloads.CreateHotelPayload
-	err := c.Bind(&payload)
+	payload, err := getCreateHotelPayload(c)
 	if err != nil {
 		return wrapper.NewHTTPResponse(http.StatusBadRequest, nil, err).JSON(c.Response())
 	}
@@ -73,8 +72,7 @@ func (hrh *HotelRestHandler) GetHotelList(c echo.Context) error {
 
 func (hrh *HotelRestHandler) UpdateHotel(c echo.Context) error {
 	ctx := c.Request().Context()
-	var payload payloads.UpdateHotelPayload
-	err := c.Bind(&payload)
+	payload, err := getUpdateHotelPayload(c)
 	if err != nil {
 		return wrapper.NewHTTPResponse(http.StatusBadRequest, nil, err).JSON(c.Response())
 	}
