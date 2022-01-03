@@ -13,6 +13,7 @@ type Reservation struct {
 	CheckOutDate    string `db:"check_out_date" action:"create" merge:"check_out_date" gorm:"type:date"`
 	HotelID         int64  `db:"hotel_id" action:"create" merge:"hotel_id"`
 	Stays           []Stay `gorm:"-"`
+	PromoID         int64  `merge:"promo_id" gorm:"-"`
 }
 
 func (re Reservation) ToPayload() payloads.ReservationPayload {
