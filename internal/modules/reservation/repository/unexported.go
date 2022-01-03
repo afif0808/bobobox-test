@@ -2,11 +2,14 @@ package repository
 
 import (
 	"context"
+	"errors"
 	"time"
 
 	"github.com/afif0808/bobobox_test/models"
+	"github.com/afif0808/bobobox_test/pkg/customerrors"
 	"github.com/afif0808/bobobox_test/pkg/snowflake"
 	"github.com/afif0808/bobobox_test/pkg/sqls"
+	"github.com/go-sql-driver/mysql"
 	"github.com/jmoiron/sqlx"
 )
 
@@ -73,10 +76,32 @@ func (repo *ReservationSQLRepo) insertStays(ctx context.Context, tx *sqlx.Tx, re
 		}
 
 		err = repo.insertStayDates(ctx, tx, s, re.CheckInDate, re.CheckOutDate)
-		if err != nil {
+		if mysqlErr, ok := err.(*mysql.MySQLError); err != nil && ok && mysqlErr.Number == 1062 {
+			err = customerrors.NewCustomError(
+				"already reserved",
+				errors.New("room is already reserved on that date"),
+				customerrors.ErrTypeConflict,
+			)
 			break
+		} else if err != nil {
+			return err
 		}
 	}
 
+	return err
+}
+
+func (repo *ReservationSQLRepo) usePromo(ctx context.Context, tx *sqlx.Tx, pru *models.PromoUse) error {
+	if pru == nil {
+		return nil
+	}
+	query, args := sqls.GenerateInsertQuery("promo_uses", pru)
+	_, err := tx.ExecContext(ctx, query, args...)
+	if err != nil {
+		tx.Rollback()
+		return err
+	}
+
+	_, err = tx.ExecContext(ctx, "UPDATE promos SET quota = quota - 1")
 	return err
 }

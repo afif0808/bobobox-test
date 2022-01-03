@@ -24,7 +24,7 @@ func NewReservationSQLRepo(readDB, writeDB *sqlx.DB) *ReservationSQLRepo {
 	return &repo
 }
 
-func (repo *ReservationSQLRepo) InsertReservation(ctx context.Context, re *models.Reservation) error {
+func (repo *ReservationSQLRepo) InsertReservation(ctx context.Context, re *models.Reservation, pru *models.PromoUse) error {
 	tx := repo.writeDB.MustBegin()
 	defer tx.Commit()
 
@@ -35,6 +35,16 @@ func (repo *ReservationSQLRepo) InsertReservation(ctx context.Context, re *model
 	}
 
 	err = repo.insertStays(ctx, tx, re)
+	if err != nil {
+		tx.Rollback()
+		return err
+	}
+
+	if pru == nil {
+		return nil
+	}
+
+	err = repo.usePromo(ctx, tx, pru)
 	if err != nil {
 		tx.Rollback()
 		return err
