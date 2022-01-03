@@ -2,7 +2,6 @@ package rest
 
 import (
 	"context"
-	"log"
 	"net/http"
 	"strconv"
 
@@ -43,16 +42,15 @@ func (rprh *RoomPriceRestHandler) CreateRoomPrices(c echo.Context) error {
 	var payload payloads.CreateRoomPricePayload
 	err := c.Bind(&payload)
 	if err != nil {
-		return wrapper.NewHTTPResponse(http.StatusBadRequest, "", nil, err).JSON(c.Response())
+		return wrapper.NewHTTPResponse(http.StatusBadRequest, nil, err).JSON(c.Response())
 	}
 	err = rprh.uc.CreateRoomPrices(ctx, payload)
 	if err != nil {
-		log.Println(err)
 		return wrapper.NewHTTPResponse(
-			customerrors.ErrorHTTPCode(err), "", nil, err,
+			customerrors.ErrorHTTPCode(err), nil, err,
 		).JSON(c.Response())
 	}
-	return wrapper.NewHTTPResponse(http.StatusCreated, "", nil, nil).JSON(c.Response())
+	return wrapper.NewHTTPResponse(http.StatusCreated, nil, nil).JSON(c.Response())
 }
 
 func (rprh *RoomPriceRestHandler) GetRoomTypePriceList(c echo.Context) error {
@@ -61,7 +59,7 @@ func (rprh *RoomPriceRestHandler) GetRoomTypePriceList(c echo.Context) error {
 	RoomPrices, err := rprh.uc.GetRoomTypePriceList(ctx, id)
 	if err != nil {
 		return wrapper.NewHTTPResponse(
-			customerrors.ErrorHTTPCode(err), "", nil, err,
+			customerrors.ErrorHTTPCode(err), nil, err,
 		).JSON(c.Response())
 	}
 	results := make([]payloads.RoomPricePayload, len(RoomPrices))
@@ -69,7 +67,7 @@ func (rprh *RoomPriceRestHandler) GetRoomTypePriceList(c echo.Context) error {
 		results[i] = RoomPrices[i].ToPayload()
 	}
 
-	return wrapper.NewHTTPResponse(http.StatusOK, "", results, nil).JSON(c.Response())
+	return wrapper.NewHTTPResponse(http.StatusOK, results, nil).JSON(c.Response())
 }
 
 func (rprh *RoomPriceRestHandler) UpdateRoomPrice(c echo.Context) error {
@@ -77,20 +75,19 @@ func (rprh *RoomPriceRestHandler) UpdateRoomPrice(c echo.Context) error {
 	var payload payloads.UpdateRoomPricePayload
 	err := c.Bind(&payload)
 	if err != nil {
-		return wrapper.NewHTTPResponse(http.StatusBadRequest, "", nil, err).JSON(c.Response())
+		return wrapper.NewHTTPResponse(http.StatusBadRequest, nil, err).JSON(c.Response())
 	}
 
 	id, _ := strconv.ParseInt(c.Param("id"), 10, 64)
 	err = rprh.uc.UpdateRoomPrice(ctx, payload, id)
 
 	if err != nil {
-		log.Println(err)
 		return wrapper.NewHTTPResponse(
-			customerrors.ErrorHTTPCode(err), "", nil, err,
+			customerrors.ErrorHTTPCode(err), nil, err,
 		).JSON(c.Response())
 	}
 
-	return wrapper.NewHTTPResponse(http.StatusOK, "", nil, nil).JSON(c.Response())
+	return wrapper.NewHTTPResponse(http.StatusOK, nil, nil).JSON(c.Response())
 }
 
 func (rprh *RoomPriceRestHandler) DeleteRoomPrice(c echo.Context) error {
@@ -99,10 +96,10 @@ func (rprh *RoomPriceRestHandler) DeleteRoomPrice(c echo.Context) error {
 	err := rprh.uc.DeleteRoomPrice(ctx, id)
 	if err != nil {
 		return wrapper.NewHTTPResponse(
-			customerrors.ErrorHTTPCode(err), "", nil, err,
+			customerrors.ErrorHTTPCode(err), nil, err,
 		).JSON(c.Response())
 	}
-	return wrapper.NewHTTPResponse(http.StatusOK, "", nil, nil).JSON(c.Response())
+	return wrapper.NewHTTPResponse(http.StatusOK, nil, nil).JSON(c.Response())
 }
 
 func (rprh *RoomPriceRestHandler) GetRoomPrice(c echo.Context) error {
@@ -111,8 +108,8 @@ func (rprh *RoomPriceRestHandler) GetRoomPrice(c echo.Context) error {
 	rp, err := rprh.uc.GetRoomPrice(ctx, id)
 	if err != nil {
 		return wrapper.NewHTTPResponse(
-			customerrors.ErrorHTTPCode(err), "", nil, err,
+			customerrors.ErrorHTTPCode(err), nil, err,
 		).JSON(c.Response())
 	}
-	return wrapper.NewHTTPResponse(http.StatusOK, "", rp.ToPayload(), nil).JSON(c.Response())
+	return wrapper.NewHTTPResponse(http.StatusOK, rp.ToPayload(), nil).JSON(c.Response())
 }
