@@ -39,17 +39,17 @@ func (hrh *ReservationRestHandler) CreateReservation(c echo.Context) error {
 	ctx := c.Request().Context()
 	p, err := getCreatePayload(c)
 	if err != nil {
-		return wrapper.NewHTTPResponse(http.StatusBadRequest, "", nil, err).JSON(c.Response())
+		return wrapper.NewHTTPResponse(http.StatusBadRequest, nil, err).JSON(c.Response())
 	}
 
 	re, err := hrh.uc.CreateReservation(ctx, p)
 	if err != nil {
 		return wrapper.NewHTTPResponse(
-			customerrors.ErrorHTTPCode(err), "", nil, err,
+			customerrors.ErrorHTTPCode(err), nil, err,
 		).JSON(c.Response())
 	}
 
-	return wrapper.NewHTTPResponse(http.StatusCreated, "", re.ToPayload(), nil).JSON(c.Response())
+	return wrapper.NewHTTPResponse(http.StatusCreated, re.ToPayload(), nil).JSON(c.Response())
 }
 
 func (hrh *ReservationRestHandler) GetReservationList(c echo.Context) error {
@@ -57,7 +57,7 @@ func (hrh *ReservationRestHandler) GetReservationList(c echo.Context) error {
 	reservations, err := hrh.uc.GetReservationList(ctx)
 	if err != nil {
 		return wrapper.NewHTTPResponse(
-			customerrors.ErrorHTTPCode(err), "", nil, err,
+			customerrors.ErrorHTTPCode(err), nil, err,
 		).JSON(c.Response())
 	}
 	results := make([]payloads.ReservationPayload, len(reservations))
@@ -65,7 +65,7 @@ func (hrh *ReservationRestHandler) GetReservationList(c echo.Context) error {
 		results[i] = reservations[i].ToPayload()
 	}
 
-	return wrapper.NewHTTPResponse(http.StatusOK, "", results, nil).JSON(c.Response())
+	return wrapper.NewHTTPResponse(http.StatusOK, results, nil).JSON(c.Response())
 }
 
 func (hrh *ReservationRestHandler) DeleteReservation(c echo.Context) error {
@@ -74,10 +74,10 @@ func (hrh *ReservationRestHandler) DeleteReservation(c echo.Context) error {
 	err := hrh.uc.DeleteReservation(ctx, id)
 	if err != nil {
 		return wrapper.NewHTTPResponse(
-			customerrors.ErrorHTTPCode(err), "", nil, err,
+			customerrors.ErrorHTTPCode(err), nil, err,
 		).JSON(c.Response())
 	}
-	return wrapper.NewHTTPResponse(http.StatusOK, "", nil, nil).JSON(c.Response())
+	return wrapper.NewHTTPResponse(http.StatusOK, nil, nil).JSON(c.Response())
 }
 
 func (hrh *ReservationRestHandler) GetReservation(c echo.Context) error {
@@ -86,8 +86,8 @@ func (hrh *ReservationRestHandler) GetReservation(c echo.Context) error {
 	h, err := hrh.uc.GetReservation(ctx, id)
 	if err != nil {
 		return wrapper.NewHTTPResponse(
-			customerrors.ErrorHTTPCode(err), "", nil, err,
+			customerrors.ErrorHTTPCode(err), nil, err,
 		).JSON(c.Response())
 	}
-	return wrapper.NewHTTPResponse(http.StatusOK, "", h.ToPayload(), nil).JSON(c.Response())
+	return wrapper.NewHTTPResponse(http.StatusOK, h.ToPayload(), nil).JSON(c.Response())
 }
