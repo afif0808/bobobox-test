@@ -23,9 +23,10 @@ type Promo struct {
 }
 
 type PromoUse struct {
-	ReservationID int64  `db:"reservation_id" action:"create"`
-	PromoID       int64  `db:"promo_id" action:"create"`
-	BookingDate   string `db:"booking_date" action:"create" gorm:"type:date"`
+	ReservationID int64       `db:"reservation_id" action:"create"`
+	PromoID       int64       `db:"promo_id" action:"create"`
+	BookingDate   string      `db:"booking_date" action:"create" gorm:"type:date"`
+	Reservation   Reservation `gorm:"constraint:onDelete:CASCADE"`
 }
 
 func (pr Promo) ToPayload() payloads.PromoPayload {

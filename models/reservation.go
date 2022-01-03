@@ -14,6 +14,7 @@ type Reservation struct {
 	HotelID         int64  `db:"hotel_id" action:"create" merge:"hotel_id"`
 	Stays           []Stay `gorm:"-"`
 	PromoID         int64  `merge:"promo_id" gorm:"-"`
+	Hotel           Hotel  `gorm:"constraint:onDelete:CASCADE"`
 }
 
 func (re Reservation) ToPayload() payloads.ReservationPayload {

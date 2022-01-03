@@ -11,8 +11,8 @@ type Room struct {
 	IsInService bool     `db:"is_in_service" action:"create,update" merge:"is_in_service"`
 	RoomTypeID  int64    `db:"room_type_id" action:"create,update" merge:"room_type_id"`
 	HotelID     int64    `db:"hotel_id" action:"create" merge:"hotel_id"`
-	RoomType    RoomType `gorm:"-"`
-	Hotel       Hotel    `gorm:"-"`
+	RoomType    RoomType `gorm:"constraint:onDelete:CASCADE"`
+	Hotel       Hotel    `gorm:"constraint:onDelete:CASCADE"`
 }
 
 func (r Room) ToPayload() payloads.RoomPayload {
